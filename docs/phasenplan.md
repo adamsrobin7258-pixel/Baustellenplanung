@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Entwurf – wartet auf Freigabe |
+| **Status** | Entwurf, 1. Überarbeitung – wartet auf Freigabe |
 | **Version** | 0.1 |
 | **Stand** | 22.10.2026 |
 | **Grundlage** | [Masterkonzept v0.1](masterkonzept.md) |
@@ -38,7 +38,7 @@ Phasen nach dem MVP (Katalog, Prüfabläufe, Mängel, Rollen, externe Firmen, iO
    - **Android:** APK-Datei
    - **Windows:** ZIP-Archiv mit ausführbarer Anwendung
 4. Claude Code legt eine **Test-Checkliste** in einfacher Sprache unter `docs/abnahme/phase-<nr>-checkliste.md` an.
-5. Du installierst die Testversion, arbeitest die Checkliste ab und meldest Ergebnisse, Messwerte und Fehler zurück.
+5. Du installierst die Testversion, arbeitest die Checkliste ab und meldest Ergebnisse, Messwerte und Fehler zurück – **ohne vertrauliche Projektinhalte** (siehe 2.5).
 6. Fehler werden behoben, bis alle Kriterien erfüllt sind.
 7. Du nimmst die Phase ausdrücklich ab. Die Abnahme wird in `docs/abnahme/phase-<nr>-protokoll.md` festgehalten.
 8. Erst danach beginnt die nächste Phase.
@@ -53,11 +53,27 @@ Diese Kriterien gelten **zusätzlich** zu den phasenspezifischen Kriterien für 
 - [ ] Es gibt keinen offenen Fehler der Kategorie „kritisch" (Datenverlust, Datenschutz, falsche Dokumente, Synchronisationsfehler).
 - [ ] Die Test-Checkliste ist vollständig abgearbeitet.
 - [ ] Technische Dokumentation und gegebenenfalls das Masterkonzept sind aktualisiert.
-- [ ] Datenbankänderungen sind als getestete Migration umgesetzt. Ein automatisierter Test belegt, dass Daten des vorherigen Stands erhalten bleiben (ab Phase 2).
+- [ ] Datenbankänderungen sind als getestete Migration umgesetzt (ab Phase 2). Sie nutzen den Migrationsrahmen aus Phase 1, also eine geprüfte Sicherung vor der Migration (Masterkonzept 15.4). Automatisierte Tests belegen für jede neue Migration:
+  - Die Daten des vorherigen Stands bleiben erhalten.
+  - Bei fehlgeschlagener Sicherung findet keine Migration statt.
+  - Eine unterbrochene Migration wird wiederhergestellt.
+- [ ] Repository, Testprotokolle, Logs, Screenshots und GitHub-Actions-Artefakte enthalten keine vertraulichen Projektinhalte (2.5). Nachweis:
+  - Eine automatische Prüfung in GitHub Actions weist PDF-, Bild- und Office-Dateien außerhalb der Ordner für künstliche Testdaten zurück.
+  - Dazu kommt eine Sichtprüfung der eingereichten Protokolle.
 
 ### 2.4 Schnitt der Phasen
 
 Weil dir weniger als 5 Stunden pro Woche zur Verfügung stehen, ist jede Phase so geschnitten, dass Test und Abnahme **in der Regel 1–3 Stunden** dauern. Größere Phasen sind in Teilschritte zerlegt, die einzeln abgenommen werden.
+
+### 2.5 Vertrauliche Daten (verbindlich, Masterkonzept 17.1)
+
+- Echte Pläne, Fotos und Dokumentationsvorlagen werden **niemals** ins Repository übernommen – **auch nicht anonymisiert**. Es gibt keine Ausnahme.
+- Automatisierte Tests verwenden **ausschließlich künstlich erzeugte Daten**. Dazu gehören ein künstlicher A0-Plan mit ca. 50 MB, künstliche 12-Megapixel-Fotos und eine künstliche Nachbildung der Vorlage mit Fantasiedaten.
+- Echte Testunterlagen bleiben **lokal auf den freigegebenen Testgeräten** (Referenzgeräte, siehe Phase V).
+- **Testprotokolle, Logs, Messprotokolle, Screenshots und GitHub-Actions-Artefakte** enthalten keine vertraulichen Inhalte. Dazu zählen Projekt-, Datei- und Kundennamen, Adressen, Personendaten sowie Plan- oder Fotoausschnitte.
+  - Messprotokolle enthalten nur technische Kennwerte wie Dateigröße, Seitenzahl, Seitenformat und Zeiten.
+  - Screenshots für Fehlermeldungen werden nur mit künstlichen Testdaten angefertigt.
+- Deine Rückmeldungen an Claude Code enthalten ebenfalls keine vertraulichen Inhalte.
 
 ## 3. Übersicht
 
@@ -71,9 +87,9 @@ Weil dir weniger als 5 Stunden pro Woche zur Verfügung stehen, ist jede Phase s
 | **4** | Markierungen und Tickets | Markierung setzen → Ticket mit Ticketnummer | 2–3 h |
 | **5** | Fotos | Fotos zu Tickets, unverändert und mit Prüfwert | 1–2 h |
 | **6** | PDF-Bericht | Bericht nach Unternehmensvorlage | 2–3 h |
-| **7** | Backup und Wiederherstellung | Datensicherung ohne Datenverlust | 2 h |
+| **7** | Backup und Wiederherstellung | Datensicherung ohne Datenverlust; Pflichtvoraussetzungen für Pilotbetrieb | 2–3 h |
 | **A** | **Meilenstein A: Einzelgerät-Funktionstest** | Echtes Kleinprojekt auf einem Gerät | 2–4 h verteilt |
-| **8** | Server-Grundlage | Betriebsbereiter Server, Konten, Geräteregistrierung | 2–4 h |
+| **8** | Server-Grundlage (erst nach geklärter Betriebsverantwortung) | Betriebsbereiter Server, Konten, Geräteregistrierung | 2–4 h |
 | **9** | Datensynchronisation | Datenaustausch mit sichtbarer Konflikterkennung | 2–3 h |
 | **10** | Dateisynchronisation | Fotos und Pläne fortsetzbar übertragen | 2 h |
 | **11** | MVP-Integration | Durchgängiger Ablauf Android ↔ Windows | 3–4 h |
@@ -87,23 +103,37 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 
 **Ziel:** Alles bereitstellen, was Phase 0 für aussagekräftige Messungen braucht.
 
+**Referenzgeräte (festgelegt, Masterkonzept 4.1):**
+
+| Plattform | Gerät |
+|---|---|
+| Android | Xiaomi 15 Ultra, 16 GB RAM, Android 16 |
+| Windows | Windows 11, Intel Core i5-12400, 8 GB RAM |
+
+*Hinweis:* Das Android-Referenzgerät ist ein Oberklassegerät. Alle Android-Messwerte gelten nur für dieses Gerät und sind nicht auf schwächere Geräte übertragbar (siehe Risiken).
+
 **Deine Aufgaben:**
 
-1. **Android-Referenzgerät** benennen: Hersteller, Modell, Arbeitsspeicher (RAM), Android-Version. Es sollte ein typisches Baustellengerät sein, kein Spitzenmodell.
-2. **Windows-Referenz-PC** benennen: Windows-Version, Prozessor, Arbeitsspeicher.
-3. **Beispielpläne** auf beiden Geräten bereitlegen, gegebenenfalls anonymisiert:
+1. **Beispielpläne** lokal auf beiden Referenzgeräten bereitlegen:
    - mindestens ein großformatiger Plan (möglichst A0, möglichst groß in MB),
    - mindestens ein mehrseitiger Plan.
-4. **Aktuelle Dokumentationsvorlage** bereitlegen. Ist sie vollständig anonymisiert (keine Kunden-, Projekt- oder Personendaten), kann sie nach deiner Freigabe ins Repository übernommen werden. Andernfalls genügt eine Beschreibung oder ein Bildschirmfoto des Aufbaus.
-5. Android: Installation von Apps aus unbekannten Quellen für den Testzeitraum erlauben. Die Checkliste in Phase 0.1 erklärt, wie das geht.
+2. **Aktuelle Dokumentationsvorlage** lokal auf beiden Referenzgeräten bereitlegen.
+3. Für die künstliche Nachbildung der Vorlage eine **Strukturbeschreibung in eigenen Worten** liefern, ohne vertrauliche Inhalte:
+   - Gliederung,
+   - Feldbezeichnungen,
+   - Reihenfolge,
+   - ungefähre Anordnung.
 
-**Wichtig:** Reale Pläne, Fotos und Vorlagen werden **nicht** ins Repository übernommen (Masterkonzept, Abschnitt 17). Für automatisierte Tests erzeugt Claude Code künstliche Testdaten. Dazu gehören ein künstlicher A0-Plan mit ca. 50 MB und künstliche Fotos in 12-Megapixel-Größe.
+   Daraus erstellt Claude Code eine Nachbildung mit Fantasiedaten. Du vergleichst sie später auf deinem Gerät mit dem Original.
+4. Android: Installation von Apps aus unbekannten Quellen für den Testzeitraum erlauben. Die Checkliste in Phase 0.1 erklärt, wie das geht.
+
+**Wichtig:** Echte Pläne, Fotos und Vorlagen werden **niemals** ins Repository übernommen, auch nicht anonymisiert, und auch nicht als Bildschirmfoto (2.5).
 
 **Abnahmekriterien:**
 
-- [ ] Referenzgeräte sind mit Modell und Kenndaten in `docs/referenzgeraete.md` dokumentiert.
-- [ ] Mindestens ein realer großer Plan und ein mehrseitiger Plan liegen auf beiden Referenzgeräten bereit.
-- [ ] Die Dokumentationsvorlage oder eine Beschreibung ihres Aufbaus liegt vor.
+- [x] Die Referenzgeräte sind mit Modell und Kenndaten in diesem Phasenplan und im Masterkonzept (4.1) dokumentiert.
+- [ ] Mindestens ein realer großer Plan und ein mehrseitiger Plan liegen lokal auf beiden Referenzgeräten bereit.
+- [ ] Die reale Vorlage liegt lokal auf den Referenzgeräten bereit. Die Strukturbeschreibung ohne vertrauliche Inhalte liegt Claude Code vor.
 
 ---
 
@@ -114,7 +144,13 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 **Grundsätze:**
 
 - Der Prototyp liegt im Ordner `prototype/` und ist ein **Wegwerf-Prototyp**. Sein Code wird **nicht** in die eigentliche App übernommen, nur die Erkenntnisse.
-- Alle Leistungswerte in dieser Phase sind **Testziele**, keine bestätigten Leistungsversprechen. Wird ein Testziel verfehlt, ist die Phase nicht automatisch gescheitert. Das Ergebnis wird bewertet und eine Gegenmaßnahme oder Alternative vorgeschlagen.
+  - Mit Daten des Prototyps wird nie echte Dokumentation erstellt. Sie werden nie in die eigentliche App übernommen.
+  - Nach Abnahme von Phase 0.7 wird der Ordner `prototype/` aus dem aktuellen Entwicklungsstand entfernt. Er bleibt nur in der Git-Historie erhalten.
+- Reale Pläne werden in Phase 0 nur lokal auf den Referenzgeräten angezeigt und vermessen. Das ist **kein** Pilotbetrieb (Masterkonzept 15.5).
+- Das Messprotokoll enthält ausschließlich technische Kennwerte, keine Datei- oder Projektnamen und keine Inhalte (2.5).
+- Leistungswerte unterscheiden zwei Arten:
+  - **Pflichtkriterien** müssen erfüllt sein.
+  - **Testziele** sind ausdrücklich so gekennzeichnet. Sie sind keine bestätigten Leistungsversprechen. Wird ein Testziel verfehlt, ist die Phase nicht automatisch gescheitert. Das Ergebnis wird bewertet und eine Gegenmaßnahme oder Alternative vorgeschlagen.
 - Der Prototyp misst selbst und zeigt die Ergebnisse in einem Bildschirm **„Messprotokoll"** an. Du kannst sie als Text kopieren oder als Datei exportieren und zurückmelden. Du musst nichts selbst messen oder berechnen.
 - Jeder Teilschritt wird einzeln getestet und abgenommen.
 
@@ -133,6 +169,7 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 
 *Automatisiert:*
 - [ ] Der GitHub-Actions-Lauf ist für Android und Windows erfolgreich und stellt beide Testversionen zum Download bereit.
+- [ ] Die GitHub-Actions-Artefakte enthalten ausschließlich die Testversionen. Die automatische Prüfung auf unzulässige Dateien (2.3) ist eingerichtet und schlägt bei einer absichtlich eingeschleusten Test-PDF außerhalb des Testdatenordners an.
 
 *Auf deinen Geräten:*
 - [ ] Die APK lässt sich auf dem Android-Referenzgerät installieren und starten.
@@ -217,7 +254,7 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 ### Phase 0.5 – PDF-Berichterstellung
 
 **Umfang:**
-- Erzeugung eines umfangreichen Berichts mit `pdf` nach dem groben Aufbau deiner realen Vorlage.
+- Erzeugung eines umfangreichen Berichts mit `pdf` nach der künstlichen Nachbildung deiner Vorlage (Phase V).
 - Testbestand: 300 Tickets mit zusammen 1.000 Fotos à 12 Megapixel (künstlich erzeugt), dazu ein Planausschnitt mit Markierungen.
 - Im Bericht werden verkleinerte Ableitungen der Fotos verwendet. Die Originale bleiben unverändert.
 - Die Erstellung läuft im Hintergrund mit Fortschrittsanzeige und Abbruchmöglichkeit.
@@ -244,20 +281,25 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 ### Phase 0.6 – Backup, Wiederherstellung und Schlüsselverlust
 
 **Umfang:**
-- Erstellen einer Sicherungsdatei mit Datenbank, Plänen und Fotos. Die Datei ist durch ein **Wiederherstellungskennwort** geschützt, also unabhängig vom Geräteschlüssel.
-- Wiederherstellung auf einer **anderen** Installation, auch plattformübergreifend von Android nach Windows.
-- Erprobung der Regel „wiederhergestellte Installation erhält ein neues Gerätekürzel" (Masterkonzept, Abschnitt 9.1).
+- Erstellen einer Sicherungsdatei mit Datenbank, Plänen und Fotos in einem zueinander passenden Stand.
+- Erprobung der Schlüsselhinterlegung gemäß Masterkonzept 15.2. Kandidat: Der Sicherungsschlüssel wird doppelt hinterlegt, mit dem Geräteschlüssel und mit einem vom Gerät unabhängigen Wiederherstellungsschlüssel.
+- Wiederherstellung auf einer **anderen** Installation **ohne den ursprünglichen Geräteschlüssel**, auch plattformübergreifend von Android nach Windows.
+- Erprobung der Ticketnummern-Regeln aus Masterkonzept 9.1:
+  - neues Gerätekürzel nach einer Wiederherstellung,
+  - Sperre bei unklarer Zählerhistorie.
 
 **Abnahmekriterien:**
 
 *Automatisiert:*
 - [ ] Nach der Wiederherstellung stimmen Anzahl der Datensätze und **alle** SHA-256-Prüfwerte der Dateien mit dem Ausgangsbestand überein.
-- [ ] Ein falsches Wiederherstellungskennwort führt zu einer verständlichen Fehlermeldung, ohne vorhandene Daten zu verändern.
+- [ ] **Pflichtkriterium:** Die Wiederherstellung gelingt auf einer frischen Installation, die den ursprünglichen Geräteschlüssel nicht kennt, nur mit dem Wiederherstellungsschlüssel.
+- [ ] Ohne Wiederherstellungsschlüssel bzw. mit falschem Schlüssel sind die Inhalte der Sicherungsdatei nicht lesbar. Es gibt eine verständliche Fehlermeldung, und vorhandene Daten bleiben unverändert.
 - [ ] Eine beschädigte oder abgeschnittene Sicherungsdatei wird erkannt und nicht teilweise eingespielt.
-- [ ] Nach einer Wiederherstellung führt das Anlegen von 1.000 neuen Tickets zu keiner Ticketnummer, die im Ausgangsbestand schon vergeben war.
+- [ ] Nach einer Wiederherstellung werden neue Ticketnummern erst nach Zuweisung eines neuen Gerätekürzels vergeben. Das Anlegen von 1.000 neuen Tickets führt zu keiner Ticketnummer, die im Ausgangsbestand schon vergeben war. Die Ticketnummern des Ausgangsbestands sind unverändert.
+- [ ] Ein absichtlich beschädigter oder zurückgesetzter Zählerstand führt dazu, dass die Vergabe gesperrt wird und keine Nummer vergeben wird.
 
 *Auf deinen Geräten:*
-- [ ] **Pflichtkriterium:** Eine auf dem Android-Referenzgerät erstellte Sicherung lässt sich auf dem Windows-Referenz-PC vollständig wiederherstellen. Plan und Fotos werden dort korrekt angezeigt.
+- [ ] **Pflichtkriterium:** Eine auf dem Android-Referenzgerät erstellte Sicherung lässt sich auf dem Windows-Referenz-PC mit dem Wiederherstellungsschlüssel vollständig wiederherstellen. Plan und Fotos werden dort korrekt angezeigt.
 - [ ] Testziel: Die Sicherung eines Projekts mit 1 großem Plan und 200 Fotos dauert ≤ 3 min auf dem Android-Referenzgerät.
 
 **Dein Aufwand:** ca. 1–2 h
@@ -267,7 +309,12 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 **Umfang:**
 - `docs/phase0-ergebnis.md` mit allen Messwerten je Plattform und einer Bewertung je Kandidat (geeignet / eingeschränkt geeignet / ungeeignet).
 - Bei Bedarf Empfehlung von Alternativen und Gegenmaßnahmen.
-- Verbindliche Festlegung des Dateiverschlüsselungsverfahrens, der Schlüsselablage, des Wiederherstellungsverfahrens und der Detailregel für Gerätekürzel nach einer Wiederherstellung.
+- Verbindliche Festlegung folgender Punkte:
+  - Dateiverschlüsselungsverfahren,
+  - Schlüsselablage und Hinterlegung des Wiederherstellungsschlüssels,
+  - Wiederherstellungsverfahren,
+  - Verfahren der Migrationssicherung (Masterkonzept 15.4),
+  - Umgang mit „Nummer ausstehend" bei gesperrter Nummernvergabe (Masterkonzept 9.1).
 - Aktualisierung der offenen Punkte im Masterkonzept (Abschnitt 23) und Fortschreibung dieses Phasenplans.
 
 **Abnahmekriterien:**
@@ -293,8 +340,14 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
   - Änderungsprotokoll
   - Löschvermerke statt physischer Löschung
 - Verschlüsselte Datenbank und Dateiablage gemäß Ergebnis von Phase 0.
-- Migrationsrahmen für Datenbankänderungen mit automatischer Sicherung vor jeder Migration.
-- **Ersteinrichtung:** Benutzername und Gerätekürzel festlegen. Das Kürzel kann danach nicht geändert werden.
+- **Migrationsrahmen** gemäß Masterkonzept 15.4:
+  - geprüfte Sicherung von Datenbank und zugehörigen Dateien vor jeder Migration,
+  - keine Migration ohne gültige Sicherung,
+  - Erkennung und Wiederherstellung bei unterbrochener oder fehlgeschlagener Migration,
+  - dokumentiertes Wiederherstellungsverfahren in `docs/`.
+- **Ersteinrichtung:** Benutzername und Gerätekürzel aus dem Register des Firmenadministrators festlegen. Das Kürzel ist danach nicht frei änderbar. Ein Wechsel ist nur über die geregelten Verfahren möglich (Masterkonzept 9.1).
+- UUID als technische Identität aller Objekte.
+- Einrichtung des Wiederherstellungsschlüssels gemäß dem in Phase 0.7 festgelegten Verfahren, mit verständlicher Anleitung zur sicheren Verwahrung.
 - Grundlegendes Erscheinungsbild: Farben, Schriftgrößen, Textskalierung, Offline-Anzeige als Platzhalter.
 - Build-Pipeline mit Tests, Code-Analyse und Testversionen für Android und Windows.
 
@@ -305,11 +358,21 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 *Automatisiert:*
 - [ ] Jede Datenänderung erzeugt einen Eintrag im Änderungsprotokoll mit UUID, Versionszähler, Zeitpunkt und Gerätekürzel.
 - [ ] Ein „Löschen" setzt nur einen Löschvermerk, der Datensatz bleibt erhalten.
-- [ ] Eine Testmigration von Schemaversion 1 auf 2 erhält alle Daten, und vorher wird eine Sicherung erstellt.
-- [ ] Die Testabdeckung der Kernbausteine (Datenhaltung, Verschlüsselung, Nummernvergabe) beträgt mindestens 80 %.
+- [ ] Jedes neu angelegte Objekt erhält eine UUID. Die UUID ist nach Bearbeiten, Speichern und erneutem Laden unverändert.
+- [ ] **Erfolgreiche Migration:** Eine Testmigration von Schemaversion 1 auf 2 läuft in dieser Reihenfolge ab:
+  1. Vorher wird eine Sicherung erstellt und geprüft (Prüfwerte, Testöffnung, Zählprüfung).
+  2. Die Migration läuft.
+  3. Danach sind alle Datensätze und die Prüfwerte aller Dateien identisch mit dem Ausgangsstand.
+- [ ] **Fehlgeschlagene Sicherung:** Simuliert werden fehlender Speicherplatz, ein Schreibfehler und eine fehlschlagende Prüfung der Sicherung. In jedem Fall beginnt die Migration nicht, die Datenbank ist bitgenau unverändert, und es erscheint eine verständliche Meldung.
+- [ ] **Unterbrochene Migration:** Ein Abbruch wird nach jedem einzelnen Migrationsschritt simuliert. Beim nächsten Start wird der unvollständige Zustand erkannt und der Stand vor der Migration aus der Sicherung wiederhergestellt. Datensätze und Prüfwerte sind identisch mit dem Ausgangsstand, und teilmigrierte Daten werden nicht weiterverwendet.
+- [ ] **Wiederherstellung:** Die Migrationssicherung lässt sich auf einer frischen Installation ohne den ursprünglichen Geräteschlüssel mit dem Wiederherstellungsschlüssel vollständig wiederherstellen.
+- [ ] Ein Gerätekürzel, das in vorhandenen Ticketnummern bereits vorkommt, wird bei der Ersteinrichtung abgelehnt.
+- [ ] Die Testabdeckung der Kernbausteine (Datenhaltung, Verschlüsselung, Migration, Nummernvergabe) beträgt mindestens 80 %.
 
 *Auf deinen Geräten:*
 - [ ] Die Ersteinrichtung lässt sich auf Android und Windows abschließen. Das Gerätekürzel wird danach angezeigt.
+- [ ] **Update-Probe:** Du installierst eine Testversion mit Schemaversion 1 und legst Testdaten an. Danach installierst du eine Testversion mit Schemaversion 2 darüber. Die App meldet die erfolgreiche Sicherung und Migration, und alle Testdaten sind vorhanden.
+- [ ] Das Wiederherstellungsverfahren bei fehlgeschlagener Migration ist dokumentiert. Du hast es gelesen und verstanden.
 - [ ] Nach einem Neustart erscheint die Ersteinrichtung nicht erneut, und die Angaben bleiben erhalten.
 - [ ] Mit größter Systemschriftgröße bleiben alle Texte lesbar und nicht abgeschnitten.
 
@@ -323,7 +386,7 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 
 **Umfang:**
 - Projekt anlegen und bearbeiten mit Projektnummer, Name, Auftraggeber, Adresse, verantwortlicher Person, Status und Terminen.
-- Automatische Projektnummer im Format `P<Jahr>-<lfd. Nr.>`, z. B. `P2026-014`. Sie ist bearbeitbar, eine doppelte Vergabe wird lokal verhindert.
+- Automatische Projektnummer im Format `P<Jahr>-<lfd. Nr.>`, z. B. `P2026-014`. Sie ist bearbeitbar, eine doppelte Vergabe wird lokal verhindert. Dass eine Änderung keine bestehenden Ticketnummern verändert, wird in Phase 4 geprüft, sobald es Tickets gibt.
 - Projektliste mit einfacher Suche nach Nummer oder Name.
 - Archivieren und Wiederherstellen.
 - Änderungsverlauf je Projekt (einfache Liste).
@@ -381,7 +444,11 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 
 **Umfang:**
 - Markierung durch Antippen bzw. Anklicken setzen. Dabei entsteht sofort ein Ticket im Zustand „Neu" und „unvollständig" (Schnellerfassung).
-- Ticketnummer gemäß Masterkonzept 9.1, z. B. `P2026-014 / K3-0042`.
+- Ticketnummer gemäß Masterkonzept 9.1, z. B. `P2026-014 / K3-0042`:
+  - bei Vergabe als fester Text gespeichert,
+  - Eindeutigkeitsprüfung der vollständigen Nummer in der Datenbank,
+  - absturzsicherer Zähler mit Prüfung der Zählerhistorie,
+  - Sperre der Vergabe bei unklarer oder beschädigter Historie.
 - Ticketarten als feste Liste (Abschnitt 9). Unternehmensspezifische Arten folgen später.
 - Grundlegende Ticketangaben: Ticketart, Bauteil (Wand/Decke), Bauteildicke, Feuerwiderstand, Hersteller und System als Freitext, Zulassungsnummer, Durchführungsmedien und Mengen, Bemerkung.
 - Status „Neu" und „In Bearbeitung". Die übrigen Status sind im Datenmodell vorgesehen, aber noch nicht bedienbar.
@@ -399,12 +466,20 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 - [ ] 10.000 nacheinander angelegte Tickets haben 10.000 unterschiedliche Ticketnummern.
 - [ ] Ein simulierter Absturz während der Ticketanlage führt nie zu einer doppelten Nummer. Lücken sind zulässig.
 - [ ] Gelöschte Tickets geben ihre Nummer nicht frei.
+- [ ] **Projektnummer-Änderung:** Es werden 100 Tickets angelegt und danach die Projektnummer geändert. Alle 100 Ticketnummern sind zeichengenau unverändert. Neu angelegte Tickets tragen die neue Projektnummer. Es entsteht keine Doppelung.
+- [ ] Die Datenbank lehnt eine zweite, identische vollständige Ticketnummer technisch ab, auch bei direktem Einfügen unter Umgehung der Bedienoberfläche.
+- [ ] **Zählerhistorie:** In drei Szenarien sperrt die App die Vergabe, vergibt keine Nummer, zeigt eine verständliche Meldung und lässt die vorhandenen Daten unverändert:
+  - Zählerstand fehlt,
+  - Zählerstand ist unlesbar,
+  - Zählerstand ist kleiner als die höchste vergebene Nummer.
+- [ ] Nach Zuweisung eines neuen Gerätekürzels wird die Vergabe fortgesetzt. Alle bisherigen Ticketnummern bleiben unverändert.
 - [ ] Ein Ticket mit fehlenden Pflichtfeldern wird immer als „unvollständig" gekennzeichnet. Kein Ablauf setzt es stillschweigend auf vollständig.
 - [ ] Die Markierungsposition bleibt nach Speichern und Laden exakt erhalten.
 
 *Auf deinen Geräten:*
 - [ ] Auf deinem realen Plan legst du per Schnellerfassung 20 Tickets an. Jede Markierung sitzt nach dem Neustart an derselben Planstelle.
 - [ ] Du vervollständigst 5 Tickets. Danach verschwindet die Kennzeichnung „unvollständig" nur bei diesen.
+- [ ] Du notierst die Ticketnummern von 5 Tickets, änderst die Projektnummer und vergleichst. Alle 5 Nummern sind unverändert, und ein neues Ticket trägt die neue Projektnummer.
 - [ ] Du beendest die App während einer Eingabe gewaltsam (Android: App aus der Übersicht wischen). Nach dem Neustart ist die Eingabe noch vorhanden.
 - [ ] Auf dem Android-Gerät sind alle Bedienelemente mit dem Finger gut treffbar. Das ist eine Sichtprüfung, als Richtwert gilt eine Mindestgröße von 48 × 48 dp.
 
@@ -447,7 +522,7 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 
 **Ziel:** Ein erster verwendbarer Bericht nach dem Aufbau deiner Unternehmensvorlage.
 
-**Umfang:**
+**Umfang** (im Repository nur als künstliche Nachbildung mit Fantasiedaten; Firmenlogo und Firmendaten werden auf dem Gerät eingerichtet, siehe 2.5):
 - Bericht je Projekt oder je Plan mit:
   - Kopf mit Firmenlogo, Adresse und Projektdaten
   - Planübersicht mit nummerierten Markierungen
@@ -484,42 +559,76 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 
 **Umfang:**
 - Manuelle Sicherung und automatische Sicherung, z. B. täglich beim App-Start, mit einstellbarer Anzahl aufbewahrter Sicherungen.
-- Schutz durch Wiederherstellungskennwort gemäß dem in Phase 0.7 festgelegten Verfahren.
+- Datenbank und zugehörige Dateien werden gemeinsam und in einem zueinander passenden Stand gesichert.
+- Schutz vor unbefugtem Zugriff durch Verschlüsselung gemäß dem in Phase 0.7 festgelegten Verfahren. Die Wiederherstellung ist auch ohne den ursprünglichen Geräteschlüssel mit dem Wiederherstellungsschlüssel möglich (Masterkonzept 15.2).
 - Wiederherstellung, auch auf einem anderen Gerät und plattformübergreifend.
 - Integritätsprüfung einer Sicherung ohne Wiederherstellung („Sicherung prüfen").
-- Neues Gerätekürzel nach einer Wiederherstellung.
+- Verständliche Rückmeldung über Erfolg oder Fehler **jeder** Sicherung.
+- Neues Gerätekürzel nach einer Wiederherstellung. Bestehende Ticketnummern bleiben unverändert.
+- Anleitung **„Verlorenes Gerät / verlorener Schlüssel"** in einfacher Sprache unter `docs/` (Masterkonzept 15.2).
 - Warnung bei knappem Speicherplatz. Es werden keine Daten automatisch gelöscht.
 
 **Abnahmekriterien:**
 
 *Automatisiert:*
 - [ ] Sicherung und Wiederherstellung erhalten alle Datensätze, den Änderungsverlauf und alle Dateien mit identischen Prüfwerten.
+- [ ] Ohne gültigen Schlüssel bzw. gültiges Kennwort ist der Inhalt einer Sicherung nicht lesbar. Es gibt keine im Klartext auffindbaren Testinhalte.
+- [ ] Die Wiederherstellung gelingt auf einer frischen Installation ohne den ursprünglichen Geräteschlüssel mit dem Wiederherstellungsschlüssel.
 - [ ] Beschädigte Sicherungen werden erkannt und nicht teilweise eingespielt.
-- [ ] Nach einer Wiederherstellung werden keine bereits vergebenen Ticketnummern erneut vergeben.
-- [ ] Eine automatische Sicherung, die durch Beenden der App abbricht, hinterlässt keine als gültig gekennzeichnete, unvollständige Sicherung.
+- [ ] **Keine doppelten Ticketnummern nach Wiederherstellung:** Ein Bestand mit 10.000 Tickets, einschließlich gelöschter, wird gesichert und wiederhergestellt. Anschließend werden 10.000 weitere Tickets angelegt. Ergebnis:
+  - Es gibt keine doppelte Ticketnummer.
+  - Alle ursprünglichen Ticketnummern sind zeichengenau unverändert.
+  - Neue Nummern tragen ausschließlich das neue Gerätekürzel.
+- [ ] Vor Zuweisung eines neuen Gerätekürzels vergibt die wiederhergestellte Installation keine Ticketnummern.
+- [ ] Eine Sicherung, die durch Beenden der App, fehlenden Speicherplatz oder ein entferntes Speichermedium abbricht, wird nie als gültig gekennzeichnet. Der Nutzer erhält eine Fehlermeldung.
 
 *Auf deinen Geräten:*
-- [ ] **Ernstfallprobe:** Du sicherst dein Testprojekt auf Android, deinstallierst die App, installierst sie neu und stellst die Sicherung wieder her. Alle Tickets, Markierungen, Fotos und Berichte sind vorhanden.
-- [ ] Du stellst dieselbe Sicherung auf dem Windows-PC wieder her. Der Inhalt ist identisch.
-- [ ] „Sicherung prüfen" meldet bei einer intakten Sicherung Erfolg.
+- [ ] **Ernstfallprobe auf dem vorgesehenen Gerät** (Xiaomi 15 Ultra):
+  1. Du sicherst dein Testprojekt.
+  2. Du deinstallierst die App und installierst sie neu.
+  3. Du stellst die Sicherung mit dem Wiederherstellungsschlüssel wieder her.
 
-**Dein Aufwand:** ca. 2 h
+  Danach sind alle Tickets, Markierungen, Fotos und Berichte vorhanden. Die App meldet „alle Prüfwerte identisch", mit Anzahl der geprüften Dateien.
+- [ ] Nach der Wiederherstellung sind die Ticketnummern von 5 vorher notierten Tickets unverändert. Ein neues Ticket trägt das neue Gerätekürzel.
+- [ ] Du stellst dieselbe Sicherung auf dem Windows-PC wieder her. Der Inhalt ist identisch.
+- [ ] **Fehlerprobe** auf dem Windows-PC:
+  1. Du startest eine Sicherung auf einen USB-Stick.
+  2. Du ziehst den Stick während der Sicherung ab.
+
+  Die App meldet einen verständlichen Fehler und kennzeichnet die Sicherung nicht als gültig.
+- [ ] „Sicherung prüfen" meldet bei einer intakten Sicherung Erfolg und bei einer absichtlich beschädigten Sicherung einen Fehler.
+- [ ] Du hast die Anleitung „Verlorenes Gerät / verlorener Schlüssel" gelesen und verstanden. Der Wiederherstellungsschlüssel ist getrennt von den Geräten verwahrt.
+
+*Hinweis:* Eine lediglich erfolgreich erstellte Sicherungsdatei gilt **nicht** als Nachweis. Nachweis ist nur die erfolgreiche Ernstfallprobe.
+
+**Dein Aufwand:** ca. 2–3 h
 
 ---
 
 ## Meilenstein A – Einzelgerät-Funktionstest
 
-**Ziel:** Der MVP-Kernablauf (Masterkonzept, Abschnitt 22, Schritte 1–7) wird an einem echten, kleinen Projekt auf **einem** Gerät erprobt.
+**Ziel:** Der MVP-Kernablauf (Masterkonzept, Abschnitt 22, Schritte 1–7) wird an einem echten, kleinen Projekt auf **einem** Gerät erprobt. Das ist der Beginn des Pilotbetriebs mit Echtdaten.
+
+**Pflichtvoraussetzungen vor Beginn (Masterkonzept 15.5)** – ohne diese Punkte beginnt Meilenstein A nicht:
+- [ ] Die lokale Sicherung ist implementiert, manuell und automatisch (Phase 7 abgenommen).
+- [ ] Sicherungen sind vor unbefugtem Zugriff geschützt (Phase 7, automatisierte Prüfung).
+- [ ] Die Wiederherstellung wurde auf dem vorgesehenen Gerät praktisch getestet, mit Abgleich aller Prüfwerte (Ernstfallprobe Phase 7).
+- [ ] Der Umgang mit verlorenen Geräten und Schlüsseln ist dokumentiert, und der Wiederherstellungsschlüssel ist verwahrt.
+- [ ] Erfolg und Fehler einer Sicherung werden verständlich zurückgemeldet (Phase 7, Fehlerprobe).
+
+Eine lediglich erstellte Sicherungsdatei reicht als Nachweis nicht aus.
 
 **Ablauf:**
 - Zeitraum 1–2 Wochen.
 - Echtes oder realitätsnahes Kleinprojekt mit mindestens 1 realem Plan, 30 Tickets und 60 Fotos.
 - Mindestens eine wöchentliche Sicherung.
 - Am Ende ein Bericht nach Unternehmensvorlage.
-- Rückmeldungen sammelst du formlos (Stichpunkte genügen). Claude Code wertet sie aus und ordnet sie ein: Fehler, Verbesserung oder später.
+- Rückmeldungen sammelst du formlos, ohne vertrauliche Projektinhalte (2.5). Stichpunkte genügen. Claude Code wertet sie aus und ordnet sie ein: Fehler, Verbesserung oder später.
+- Am Ende des Zeitraums wird eine Wiederherstellung der letzten Sicherung erneut praktisch geprüft.
 
 **Abnahmekriterien:**
 - [ ] Im Testzeitraum ist kein Datenverlust aufgetreten.
+- [ ] Die Wiederherstellung der letzten Sicherung am Ende des Zeitraums war erfolgreich, mit Abgleich aller Prüfwerte.
 - [ ] Der erzeugte Bericht ist inhaltlich korrekt. Das prüfst du stichprobenartig an 10 Tickets.
 - [ ] Alle als „kritisch" eingestuften Rückmeldungen sind behoben.
 - [ ] Du entscheidest ausdrücklich, ob die Serverphase beginnen kann oder zuerst Verbesserungen umgesetzt werden.
@@ -530,14 +639,28 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 
 **Ziel:** Ein selbst betriebener, abgesicherter Server als Grundlage der Synchronisation.
 
-**Vorab zu klären (vor Beginn der Phase, mit deiner Entscheidung):**
+**Verbindliche Freigabebedingung (Masterkonzept 16.3):** Die Phase beginnt **erst**, wenn alle folgenden Punkte erfüllt und von dir ausdrücklich bestätigt sind. **Ohne geklärte Betriebsverantwortung beginnt die Serverphase nicht.**
+
+- [ ] Es ist schriftlich geklärt, wer für folgende Aufgaben verantwortlich ist:
+  - Serverbetrieb,
+  - Sicherheitsupdates,
+  - Überwachung,
+  - Backups,
+  - Störungsbehebung.
+- [ ] Die Verantwortung liegt bei einer **fachkundigen Person** oder einem **beauftragten Dienstleister** (Name, Kontakt, Vertretung).
+- [ ] Folgende Punkte sind dokumentiert:
+  - Zugriffsrechte (wer hat welchen Zugang),
+  - Erreichbarkeit im Störungsfall (Zeiten, Kontaktweg, Vertretung),
+  - Wiederherstellungsverfahren.
+- [ ] Eine Aufwandsschätzung für den laufenden Betrieb liegt vor. Der Anteil, der bei dir verbleibt, passt zusammen mit Test- und Abnahmeaufwand realistisch in **weniger als 5 Stunden pro Woche**.
+
+**Zusätzlich vorab zu klären:**
 - Hosting: eigener Server oder angemieteter Server bei einem deutschen Anbieter.
-- Wer betreibt den Server, wer ist bei Ausfällen zuständig?
 - Domain, TLS-Zertifikat, Erreichbarkeit von Baustellen (direkt über das Internet oder per VPN).
 - Server-Technologie: Claude Code legt dazu zu Beginn der Phase eine begründete Empfehlung vor.
 - Backupziel für Serversicherungen.
 
-**Hinweis des Partners:** Der Serverbetrieb ist der Teil mit dem höchsten dauerhaften Aufwand und Risiko, gerade bei unter 5 Stunden pro Woche. Vor Beginn dieser Phase sollte entschieden werden, ob ein Dienstleister oder eine kundige Person den Grundbetrieb (Updates, Überwachung) übernimmt. Claude Code liefert in jedem Fall eine vollständige Schritt-für-Schritt-Betriebsdokumentation und weitgehend automatisierte Einrichtung.
+Claude Code liefert eine vollständige Schritt-für-Schritt-Betriebsdokumentation und eine weitgehend automatisierte Einrichtung. Das ersetzt aber nicht die geklärte Betriebsverantwortung.
 
 **Umfang:**
 - Serveranwendung mit Datenbank, Bereitstellung als Container mit dokumentierter, wiederholbarer Einrichtung.
@@ -551,7 +674,7 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 
 *Automatisiert:*
 - [ ] Anfragen ohne gültige Anmeldung oder von nicht freigegebenen Geräten werden abgewiesen.
-- [ ] Ein Gerätekürzel wird nie doppelt vergeben, auch nicht bei gleichzeitigen Registrierungen.
+- [ ] Ein Gerätekürzel wird nie doppelt vergeben, auch nicht bei gleichzeitigen Registrierungen. Bereits verwendete und stillgelegte Kürzel aus der Einzelgerät-Phase werden ins Register übernommen und nie neu vergeben.
 - [ ] Unverschlüsselte Verbindungen (HTTP) werden nicht angenommen.
 
 *Durch dich bzw. den Serverbetreuer:*
@@ -583,7 +706,7 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 - [ ] Zwei Geräte ändern offline dasselbe Ticket. Nach der Synchronisation existiert ein Konflikt, und **beide** Zustände sind vollständig abrufbar.
 - [ ] Ein Zufallstest mit mindestens 1.000 zufälligen Operationen auf 3 Geräten mit zufälligen Verbindungsabbrüchen führt zu **keinem verlorenen Änderungsstand**. Jeder Zustand ist entweder übernommen oder als Konflikt erhalten.
 - [ ] Ein Verbindungsabbruch an jeder möglichen Stelle des Ablaufs hinterlässt Gerät und Server in einem konsistenten Zustand.
-- [ ] Ticketnummern bleiben über alle Geräte hinweg eindeutig.
+- [ ] Ticketnummern bleiben über alle Geräte hinweg eindeutig. Der Server lehnt eine doppelte vollständige Ticketnummer ab. Eine trotzdem auftretende Doppelung, etwa aus einer Einzelgerät-Phase, wird als Konflikt angezeigt und nie still umnummeriert.
 
 *Auf deinen Geräten:*
 - [ ] Ein auf Android angelegtes Ticket erscheint nach der Synchronisation auf dem Windows-PC und umgekehrt.
@@ -665,19 +788,55 @@ Die Schätzungen sind Richtwerte, keine Zusagen.
 | Risiko | Auswirkung | Gegenmaßnahme |
 |---|---|---|
 | SQLCipher lässt sich unter Windows nicht zuverlässig einbinden | Kein verschlüsselter Datenbestand auf dem PC | Prüfung in Phase 0.2; Alternativen bewerten |
-| Große Pläne laufen auf Mittelklasse-Android-Geräten nicht flüssig | Schlechte Baustellentauglichkeit | Messung in Phase 0.4; ggf. Kachel-Zwischenspeicher oder Mindestanforderungen an Geräte |
-| Umfangreiche Berichte überschreiten den Arbeitsspeicher | Absturz bei großen Projekten | Messung in Phase 0.5; Aufteilung in Teildokumente |
-| Schlüsselverlust macht lokale Daten unlesbar | Datenverlust vor Einführung des Servers | Kennwortgeschützte Backups (Phase 0.6 / 7) als Pflicht vor Echtdaten |
-| Serverbetrieb übersteigt die verfügbare Zeit | Ausfälle, fehlende Updates | Entscheidung über Betreuung vor Phase 8 |
+| Große Pläne laufen auf dem Android-Referenzgerät nicht flüssig | Schlechte Baustellentauglichkeit | Messung in Phase 0.4; ggf. Kachel-Zwischenspeicher |
+| Referenzgerät Xiaomi 15 Ultra ist ein Oberklassegerät; Messwerte sind auf schwächere Geräte nicht übertragbar | Ruckeln oder Abstürze auf anderen Baustellengeräten im Praxistest | Vor dem Praxistest ergänzender Test auf einem schwächeren Gerät, falls solche eingesetzt werden; ggf. Mindestanforderungen an Geräte |
+| Umfangreiche Berichte überschreiten den Arbeitsspeicher, vor allem auf dem Windows-PC mit 8 GB RAM | Absturz bei großen Projekten | Messung in Phase 0.5; Aufteilung in Teildokumente |
+| Schlüsselverlust macht lokale Daten unlesbar | Datenverlust vor Einführung des Servers | Wiederherstellungsschlüssel unabhängig vom Gerät (Phase 0.6 / 1 / 7); Pflichtvoraussetzungen vor Meilenstein A |
+| Vor Einführung des Servers hängt die Eindeutigkeit der Gerätekürzel an einem manuell geführten Register | Doppelte Kürzel und damit doppelte Ticketnummern bei Fehlbedienung | Register durch den Administrator; App lehnt bekannte Kürzel ab; Eindeutigkeitsprüfung; Übernahme ins Server-Register in Phase 8 |
+| Migrationssicherung benötigt zusätzlichen Speicherplatz | Update kann bei vollem Speicher nicht migrieren | Speicherprüfung vor Migration; Migration beginnt nicht; verständliche Meldung (Phase 1) |
+| Serverbetrieb übersteigt die verfügbare Zeit | Ausfälle, fehlende Updates | Verbindliche Freigabebedingung „Betriebsverantwortung" vor Phase 8 |
+| Vertrauliche Inhalte gelangen versehentlich in Repository, Protokolle oder Artefakte | Datenschutzverletzung | Regeln 2.5; automatische Dateiprüfung in GitHub Actions; Sichtprüfung |
 | Begrenzte Testzeit verzögert Abnahmen | Längere Gesamtdauer | Kleine Teilschritte, Messwerte automatisch von der App ermittelt |
 | Unsignierte Testversionen lösen Sicherheitswarnungen aus | Verunsicherung beim Testen | Erklärung in den Checklisten; Signierung vor dem Praxistest prüfen |
 
-## 5. Freigabe
+## 5. Nachweismatrix der Pflichtanforderungen
+
+Diese Tabelle zeigt, in welcher Phase jede Pflichtanforderung des MVP durch ein messbares Abnahmekriterium nachgewiesen wird.
+
+| Pflichtanforderung (Masterkonzept) | Nachweis in Phase |
+|---|---|
+| UUID als technische Identität (9.1) | 1 |
+| Ticketnummer getrennt von UUID, als fester Text gespeichert (9.1) | 4 |
+| Ticketnummer bleibt bei Änderung der Projektnummer unverändert (9.1) | 4 |
+| Ticketnummern werden nie erneut vergeben (9.1) | 4, 7, 9 |
+| Globale Eindeutigkeit nicht allein über das Gerätekürzel (Register, Eindeutigkeitsprüfung) (9.1) | 1, 4, 8, 9 |
+| Absturzsicherer, dauerhaft gespeicherter Zähler (9.1) | 4 |
+| Sperre bei unklarer oder beschädigter Zählerhistorie (9.1) | 0.6, 4 |
+| Neues Gerätekürzel nach Wiederherstellung; bestehende Nummern unverändert (9.1) | 0.6, 7 |
+| Stabile Markierungskoordinaten (8) | 0.4, 4 |
+| Keine erfundenen Werte; unvollständige Tickets gekennzeichnet (9) | 4, 6 |
+| Verschlüsselte Datenbank (15.1) | 0.2, 1 |
+| Verschlüsselte Dateien; SHA-256 über das unverschlüsselte Original (13, 15.1) | 0.3, 3, 5 |
+| Kein Schlüssel ausschließlich auf einem Gerät (15.2) | 0.6, 1, 7 |
+| Geprüfte Sicherung vor jeder Migration; keine Migration ohne Sicherung; Wiederherstellung bei Abbruch (15.4) | 1; danach jede Phase (2.3) |
+| Pflichtvoraussetzungen vor Pilotbetrieb (15.5) | 7, Meilenstein A |
+| Freigegebene Berichte unveränderlich, mit Verweis auf Datenstand und Planrevision (14) | 6 |
+| Kein stilles Überschreiben; Konflikte sichtbar; beide Zustände erhalten (16.1) | 9, 11 |
+| Fortsetzbare Übertragung mit Integritätsprüfung (15.3) | 10 |
+| Keine automatische Löschung bei Speicherknappheit (15.3) | 7, 10 |
+| Offline-Arbeit im Kernablauf (15) | 11 |
+| Keine vertraulichen Inhalte in Repository, Protokollen und Artefakten (17.1) | 0.1; danach jede Phase (2.3) |
+| Geklärte Betriebsverantwortung vor der Serverphase (16.3) | Freigabebedingung Phase 8 |
+
+Anforderungen außerhalb des MVP (Katalog, Prüfabläufe, Mängel, Aufgaben, Rollen, externe Firmen, iOS) werden nach Meilenstein B geplant.
+
+## 6. Freigabe
+
+**Vor der ausdrücklichen Freigabe dieses Phasenplans erfolgt keine Implementierung.** Das umfasst App-Code, Prototyp und Build-Pipeline. Der Beginn von Phase 0 erfordert darüber hinaus eine **gesonderte, ausdrückliche Zustimmung** des Projektverantwortlichen.
 
 | | |
 |---|---|
 | Phasenplan freigegeben am | _______________ |
 | Durch | _______________ |
 | Anmerkungen | _______________ |
-
-Phase 0 beginnt erst nach dieser Freigabe.
+| Zustimmung zum Beginn von Phase 0 am | _______________ |

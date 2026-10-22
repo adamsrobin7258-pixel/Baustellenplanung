@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Planung |
+| **Status** | Planung – Entwurf, 1. Überarbeitung |
 | **Version** | 0.1 |
 | **Stand** | 22.10.2026 |
 | **Zielplattformen** | Windows, Android, später iOS |
@@ -61,6 +61,17 @@ Fällt ein Kandidat durch, wird vor Phase 1 eine Alternative geprüft und dokume
 
 Da aktuell kein Mac zur Verfügung steht, werden frühe Entwicklung und Tests auf Windows und Android konzentriert. iOS bleibt bei Architektur und UI-Entscheidungen berücksichtigt (keine Windows- oder Android-exklusiven Abhängigkeiten ohne iOS-Alternative). Für spätere iOS-Builds und Gerätetests muss eine geeignete macOS-Umgebung verfügbar sein.
 
+### 4.1 Referenzgeräte
+
+Messungen und Gerätetests bis zum MVP erfolgen auf folgenden Referenzgeräten:
+
+| Plattform | Gerät |
+|---|---|
+| Android | Xiaomi 15 Ultra, 16 GB RAM, Android 16 |
+| Windows | Windows 11, Intel Core i5-12400, 8 GB RAM |
+
+Das Android-Referenzgerät ist ein leistungsstarkes Oberklassegerät. Messergebnisse darauf sind **nicht** auf schwächere Geräte übertragbar. Sollen im Praxistest schwächere Android-Geräte eingesetzt werden, ist vorher ein ergänzender Test auf einem solchen Gerät erforderlich. Der Windows-Referenz-PC mit 8 GB RAM ist dagegen eher knapp ausgestattet und daher für Speichertests (z. B. umfangreiche PDF-Berichte) besonders aussagekräftig.
+
 ## 5. Entwicklungsorganisation
 
 - **Implementierung, automatisierte Tests und technische Dokumentation:** Claude Code.
@@ -71,6 +82,7 @@ Da aktuell kein Mac zur Verfügung steht, werden frühe Entwicklung und Tests au
   - Installierbare Testversionen (Windows, Android) werden automatisiert erzeugt; es ist keine lokale Entwicklungsumgebung beim Projektverantwortlichen erforderlich.
   - Messwerte, die nur auf realen Geräten ermittelt werden können, zeigt die App selbst an, sodass sie abgelesen und zurückgemeldet werden können.
 - Keine Phase beginnt ohne ausdrückliche Freigabe der vorherigen Phase.
+- **Vor der ausdrücklichen Freigabe des Phasenplans wird keine Implementierung vorgenommen** – kein App-Code, kein Prototyp, keine Build-Pipeline. Auch der Beginn von Phase 0 erfordert eine gesonderte, ausdrückliche Zustimmung des Projektverantwortlichen.
 
 ## 6. Benutzer, Unternehmen und Berechtigungen
 
@@ -104,7 +116,7 @@ Ein Projekt enthält unter anderem:
 - Dokumente und Exporte
 - Freie Ordner und konfigurierbare Zusatzfelder
 
-Projektnummern (Format z. B. `P2026-014`) sollen automatisch erzeugt und bei entsprechender Berechtigung bearbeitet werden können. Da Projektnummern Bestandteil der Ticketnummer sind, wird bei einer Änderung der Projektnummer festgelegt, ob bestehende Ticketnummern unverändert bleiben (Empfehlung: ja – vergebene Ticketnummern ändern sich nie).
+Projektnummern (Format z. B. `P2026-014`) sollen automatisch erzeugt und bei entsprechender Berechtigung bearbeitet werden können. Eine nachträgliche Änderung der Projektnummer verändert **keine** bereits vergebenen Ticketnummern (verbindlich, siehe Abschnitt 9.1).
 
 Projekte können archiviert und bei Bedarf wiederhergestellt werden. Favoriten, globale Suche und Filter unterstützen den Arbeitsalltag.
 
@@ -151,20 +163,50 @@ Firmenadministratoren sollen festlegen können, welche Felder für bestimmte Tic
 
 Fehlende Angaben werden sichtbar angezeigt. Die Software darf fehlende Informationen nicht durch erfundene oder ungeprüfte Werte ersetzen. Schnell erfasste, unvollständige Tickets sind eindeutig als unvollständig gekennzeichnet und gelten nie als vollständig oder freigegeben.
 
-### 9.1 Identität und Ticketnummer (Entscheidung)
+### 9.1 Identität und Ticketnummer (verbindlich)
 
-- **Technische Identität:** Jedes Objekt (Projekt, Plan, Planrevision, Markierung, Ticket, Foto, Dokument usw.) erhält eine global eindeutige **UUID**. Sie ist die einzige maßgebliche technische Identität. Verknüpfungen zwischen Objekten erfolgen ausschließlich über UUIDs.
-- **Lesbare Ticketnummer:** Format `<Projektnummer> / <Gerätekürzel>-<Zähler>`, z. B. **`P2026-014 / K3-0042`**.
-  - Die Ticketnummer dient der Verständigung und Suche, nicht als technischer Schlüssel.
-  - Der Zähler ist vierstellig mit führenden Nullen und wächst bei Bedarf über 9999 hinaus (`K3-10000`).
-- **Gerätekürzel:**
-  - Ein Gerätekürzel gehört zu einer **App-Installation**, nicht zur Hardware. Eine Neuinstallation oder ein neues Gerät erhält ein neues Kürzel.
-  - Gerätekürzel werden **eindeutig** vergeben und **nie wiederverwendet**, auch nicht nach Stilllegung eines Geräts.
-  - Vor Einführung des Servers (Einzelgerät-Phase) wird das Kürzel bei der Ersteinrichtung festgelegt. Mit Einführung der Synchronisation vergibt der Server die Kürzel bei der Geräteregistrierung; das Register aller jemals vergebenen Kürzel wird zentral geführt.
-- **Zähler:**
-  - Der Zähler wird dauerhaft in der lokalen Datenbank gespeichert und **in derselben Transaktion** erhöht, in der das Ticket angelegt wird. Ein Absturz kann daher keine doppelte Nummer erzeugen; Lücken sind zulässig.
-  - Bereits vergebene Ticketnummern werden **nie erneut vergeben** – auch nicht nach Löschung eines Tickets.
-- **Wiederherstellung aus Backup:** Ein Backup enthält einen älteren Zählerstand. Damit nach einer Wiederherstellung keine Nummern doppelt vergeben werden, erhält eine wiederhergestellte Installation **ein neues Gerätekürzel**. Die genaue Regel wird in Phase 0 geprüft und vor der Backup-Phase verbindlich festgelegt.
+**Technische Identität**
+
+- Jedes Objekt (Projekt, Plan, Planrevision, Markierung, Ticket, Foto, Dokument usw.) besitzt eine global eindeutige **UUID** als technische Identität. Sie ist die einzige maßgebliche technische Identität. Verknüpfungen zwischen Objekten erfolgen ausschließlich über UUIDs.
+- Die UUID eines Objekts ändert sich nie – auch nicht durch Synchronisation, Wiederherstellung oder Änderung der Projektnummer.
+
+**Lesbare Ticketnummer**
+
+- Lesbare Ticketnummern werden **getrennt von der UUID** vergeben. Sie dienen der Verständigung und Suche, nicht als technischer Schlüssel.
+- Format: `<Projektnummer zum Zeitpunkt der Vergabe> / <Gerätekürzel>-<Zähler>`, z. B. **`P2026-014 / K3-0042`**. Der Zähler ist vierstellig mit führenden Nullen und wächst bei Bedarf über 9999 hinaus (`K3-10000`).
+
+**Unveränderlichkeit und Einmaligkeit**
+
+- Eine Ticketnummer wird bei der Vergabe als **fester Text** gespeichert und danach **nie** verändert. Sie wird nicht nachträglich aus aktuellen Projekt- oder Gerätedaten neu berechnet.
+- Eine nachträgliche **Änderung der Projektnummer verändert keine bereits vergebenen Ticketnummern.** Neu angelegte Tickets erhalten ab der Änderung die neue Projektnummer.
+- Ticketnummern werden **niemals erneut vergeben** – auch nicht nach Löschung, Archivierung, Wiederherstellung oder Gerätewechsel. Lücken in der Nummernfolge sind zulässig.
+
+**Globale Eindeutigkeit**
+
+Ein Gerätekürzel allein ersetzt keine globale Eindeutigkeit. Die Eindeutigkeit wird zusätzlich abgesichert durch:
+
+- ein **Register aller jemals vergebenen Gerätekürzel**. Vor Einführung des Servers führt es der Firmenadministrator, danach führt es der Server verbindlich.
+- eine **technische Eindeutigkeitsprüfung** der vollständigen Ticketnummer in der lokalen Datenbank und – nach Einführung des Servers – zusätzlich auf dem Server.
+- eine **Prüfung bei Wiederherstellung, Import und Synchronisation.** Taucht eine Ticketnummer doppelt auf, wird dies als Konflikt sichtbar gemacht. Es wird nie still umnummeriert, überschrieben oder verworfen.
+
+**Gerätekürzel**
+
+- Ein Gerätekürzel gehört zu einer **App-Installation**, nicht zur Hardware. Eine Neuinstallation oder ein neues Gerät erhält ein neues Kürzel.
+- Gerätekürzel werden **eindeutig** vergeben und **nie wiederverwendet**, auch nicht nach Stilllegung eines Geräts. Stillgelegte Kürzel bleiben im Register als „stillgelegt" erhalten.
+- Vor Einführung des Servers wird das Kürzel bei der Ersteinrichtung aus dem Register des Firmenadministrators übernommen. Die App lehnt ein Kürzel ab, das in bereits vorhandenen Ticketnummern vorkommt. Nach Einführung des Servers vergibt der Server die Kürzel bei der Geräteregistrierung.
+- Ein Kürzel ist nicht frei änderbar. Ein Wechsel erfolgt ausschließlich über die unten geregelten Verfahren, also nach einer Wiederherstellung oder bei unklarer Zählerhistorie, und immer zu einem **neuen** Kürzel.
+
+**Zähler**
+
+- Der Zähler für neu vergebene Ticketnummern wird **dauerhaft und absturzsicher** in der verschlüsselten lokalen Datenbank gespeichert und **in derselben Transaktion** erhöht, in der das Ticket angelegt wird. Ein Absturz kann daher keine doppelte Nummer erzeugen.
+- Vor jeder Vergabe prüft die App die Zählerhistorie. Der Zähler muss größer sein als die höchste mit diesem Gerätekürzel jemals vergebene Nummer, gelöschte Tickets eingeschlossen.
+- **Unklare oder beschädigte Zählerhistorie:** Fehlt der Zählerstand, ist er unlesbar oder widerspricht er den vorhandenen Ticketnummern, sperrt die App die Vergabe neuer Ticketnummern mit diesem Kürzel. Sie fährt **nicht** mit einem möglicherweise bereits vergebenen Nummernbereich fort. Die Vergabe wird erst nach Zuweisung eines neuen, eindeutigen Gerätekürzels fortgesetzt. Bereits erfasste Daten bleiben unverändert erhalten. Ob in diesem Zustand Tickets vorläufig mit dem Vermerk „Nummer ausstehend" erfasst werden dürfen, wird in Phase 0.7 festgelegt.
+
+**Wiederherstellung**
+
+- Nach einer Wiederherstellung, aus einer Sicherung oder auf einem neuen Gerät, muss **ein neues, eindeutiges Gerätekürzel vergeben werden, bevor neue Ticketnummern vergeben werden**.
+- Bestehende Tickets und ihre bisherigen Ticketnummern bleiben dabei **unverändert** erhalten.
+- Das bisherige Kürzel wird im Register als stillgelegt geführt.
 
 ## 10. Ticketstatus und Prüfung
 
@@ -242,7 +284,7 @@ Einzelne PDFs oder ausgewählte beziehungsweise vollständige Projektpakete kön
 
 Eine gezeichnete Unterschrift gilt nicht automatisch als qualifizierte elektronische Signatur.
 
-Grundlage für den ersten Bericht ist eine reale, gegebenenfalls anonymisierte Dokumentationsvorlage des Unternehmens.
+Grundlage für den ersten Bericht ist der Aufbau der realen Dokumentationsvorlage des Unternehmens. Die reale Vorlage bleibt ausschließlich auf den freigegebenen Testgeräten. In der Software und im Repository wird nur eine **künstliche Nachbildung** mit Fantasiedaten verwendet (siehe Abschnitt 17). Firmenlogo und Firmendaten werden auf dem Gerät eingerichtet und nicht im Repository abgelegt.
 
 ## 15. Offlinebetrieb und lokale Datensicherheit
 
@@ -266,20 +308,62 @@ Die zentralen Arbeitsabläufe müssen offline nutzbar sein, insbesondere:
 
 ### 15.2 Schlüsselverwaltung
 
-- Schlüssel werden zufällig erzeugt und ausschließlich im geschützten Schlüsselspeicher des Betriebssystems abgelegt (Kandidat: `flutter_secure_storage` – Android Keystore, Windows-Anmeldeinformationsspeicher).
-- Schlüssel werden nie im Klartext in Dateien, Protokollen oder Diagnosedaten gespeichert.
-- **Wiederherstellbarkeit:** Geht der Schlüssel verloren (z. B. Deinstallation, Gerätedefekt, Windows-Neuinstallation), sind lokal verschlüsselte Daten ohne weitere Vorkehrung unlesbar. Daher:
-  - Vor Einführung der Synchronisation sind lokale Backups mit eigenem, vom Gerät unabhängigem Schutz (z. B. Wiederherstellungskennwort oder -schlüssel) die einzige Rettung und daher Teil des MVP.
-  - Nach Einführung der Synchronisation ist der Server die primäre Wiederherstellungsquelle.
-  - Das genaue Verfahren wird in Phase 0 geprüft und vor der Backup-Phase verbindlich festgelegt.
+- **Geräteschlüssel** werden zufällig erzeugt und auf dem Gerät ausschließlich im geschützten Schlüsselspeicher des Betriebssystems abgelegt (Kandidat: `flutter_secure_storage` – Android Keystore, Windows-Anmeldeinformationsspeicher). Der davon unabhängige Wiederherstellungsschlüssel wird außerhalb der Geräte verwahrt (siehe unten).
+- Schlüssel werden nie im Klartext in Dateien, Protokollen, Diagnosedaten oder im Repository gespeichert.
+- **Wiederherstellbarkeit (verbindlich):** Geht der Geräteschlüssel verloren (z. B. Deinstallation, Gerätedefekt, Verlust des Geräts, Windows-Neuinstallation), sind lokal verschlüsselte Daten ohne weitere Vorkehrung unlesbar. Daher gilt:
+  - Ein **ausschließlich auf einem Gerät vorhandener Schlüssel darf nie der einzige Weg zur Wiederherstellung sein.**
+  - Sicherungen werden so verschlüsselt, dass sie auch **ohne den ursprünglichen Geräteschlüssel** mit einem vom Gerät unabhängigen **Wiederherstellungsschlüssel** (oder Wiederherstellungskennwort) wiederhergestellt werden können.
+    - Kandidat: Der Schlüssel einer Sicherung wird doppelt hinterlegt – mit dem Geräteschlüssel, für die Wiederherstellung auf demselben Gerät, und mit dem Wiederherstellungsschlüssel, für die Wiederherstellung auf einem anderen oder neuen Gerät.
+  - Der Wiederherstellungsschlüssel wird vom Firmenadministrator **getrennt von den Geräten** sicher verwahrt, z. B. ausgedruckt im Tresor oder in einem Passwortmanager. Verwahrort und Zuständigkeit sind dokumentiert.
+  - Nach Einführung der Synchronisation ist der Server die primäre Wiederherstellungsquelle. Lokale Sicherungen bleiben zusätzlich bestehen.
+  - Das genaue Verfahren wird in Phase 0 geprüft und spätestens mit Abschluss von Phase 0 verbindlich festgelegt, da es bereits für die Migrationssicherung in Phase 1 benötigt wird.
+- **Verlorene Geräte und verlorene Schlüssel:** Für beide Fälle gibt es vor dem Pilotbetrieb eine dokumentierte Vorgehensweise. Sie umfasst mindestens:
+  - Meldung und Zuständigkeit,
+  - Stilllegung des Gerätekürzels,
+  - nach Einführung des Servers: Sperre des Geräts,
+  - Wiederherstellung aus der letzten Sicherung auf einem Ersatzgerät,
+  - Hinweis auf möglicherweise verlorene Änderungen seit der letzten Sicherung.
 
 ### 15.3 Backups, Downloads und Speicherplatz
 
-Lokale Backups müssen manuell und automatisiert möglich sein. Wiederherstellung und Integrität der Backups müssen überprüfbar sein (Abgleich der SHA-256-Prüfwerte).
+Lokale Backups müssen manuell und automatisiert möglich sein. Eine Sicherung umfasst die verschlüsselte Datenbank und die zugehörigen verschlüsselten Dateien **gemeinsam und in einem zueinander passenden Stand**. Wiederherstellung und Integrität der Backups müssen überprüfbar sein (Abgleich der SHA-256-Prüfwerte).
+
+Nach jeder Sicherung erhält der Nutzer eine **verständliche Rückmeldung über Erfolg oder Fehler**. Eine fehlgeschlagene oder unvollständige Sicherung wird nie als gültig gekennzeichnet.
 
 Benutzer können lokale Projektdaten entfernen, ohne dadurch automatisch zentrale Daten zu löschen.
 
 Downloads müssen fortsetzbar sein und erst nach erfolgreicher Integritätsprüfung als vollständig gelten. Bei knappem Speicherplatz werden Nutzer gewarnt; die App löscht keine Projektdaten eigenmächtig.
+
+### 15.4 Datensicherung vor Datenbankmigrationen (verbindlich)
+
+Ändert ein App-Update die Struktur der lokalen Datenbank (Migration), gilt:
+
+1. **Sicherung vor jeder Migration:** Vor jeder Migration wird automatisch eine Sicherung des bisherigen Datenbestands erstellt.
+   - Die verschlüsselte Datenbank und die zugehörigen Dateien werden gemeinsam berücksichtigt.
+   - Dateien, die die Migration verändert, werden vollständig mitgesichert.
+   - Unveränderliche Dateien, die die Migration nicht berührt, werden über eine Liste ihrer Prüfwerte erfasst und nach der Migration auf Vollständigkeit geprüft.
+2. **Prüfung der Sicherung:** Die Sicherung wird auf Vollständigkeit und Wiederherstellbarkeit geprüft, soweit technisch möglich. Dazu gehören:
+   - Abgleich der Prüfwerte,
+   - testweises Öffnen der gesicherten Datenbank mit dem zugehörigen Schlüssel,
+   - Zählprüfung der Datensätze.
+3. **Keine Migration ohne gültige Sicherung:** Schlägt die Sicherung oder ihre Prüfung fehl, etwa wegen fehlenden Speicherplatzes, beginnt die Migration **nicht**. Der Datenbestand bleibt unverändert. Der Nutzer erhält eine verständliche Meldung mit Handlungsanweisung.
+4. **Fehlgeschlagene oder unterbrochene Migration:** Die App erkennt beim nächsten Start einen unvollständigen Migrationszustand, etwa nach einem Absturz, Stromausfall oder beendeter App. Dann greift ein **dokumentiertes Wiederherstellungsverfahren**: Der Stand vor der Migration wird aus der Sicherung wiederhergestellt und der Nutzer informiert. Teilweise migrierte Daten werden nie weiterverwendet.
+5. **Schlüssel:** Das Sicherungskonzept berücksichtigt die sichere Wiederherstellung der benötigten Schlüssel gemäß Abschnitt 15.2. Eine Migrationssicherung muss auch dann wiederherstellbar sein, wenn der Geräteschlüssel verloren geht.
+6. Verfahren und Tests werden mit dem Migrationsrahmen in Phase 1 umgesetzt und gelten für jedes spätere Update mit Strukturänderung.
+
+### 15.5 Pflichtvoraussetzungen vor dem Pilotbetrieb mit Echtdaten (verbindlich)
+
+**Pilotbetrieb** ist jeder Einsatz der App zur tatsächlichen Dokumentation echter Projekte, beginnend mit Meilenstein A. Die Verwendung realer Pläne in Phase 0 ist kein Pilotbetrieb: Dort werden sie nur angezeigt und vermessen, und die Prototyp-Daten dienen nie als Dokumentation.
+
+Vor Beginn des Pilotbetriebs müssen **alle** folgenden Punkte erfüllt und nachgewiesen sein:
+
+1. Die lokale Sicherung ist implementiert (manuell und automatisch).
+2. Sicherungen sind vor unbefugtem Zugriff geschützt (verschlüsselt, Wiederherstellung nur mit berechtigtem Schlüssel oder Kennwort).
+3. Eine Wiederherstellung wurde auf dem vorgesehenen Gerät **praktisch getestet**, mit Abgleich aller Prüfwerte.
+4. Der Umgang mit verlorenen Geräten und verlorenen Schlüsseln ist dokumentiert (Abschnitt 15.2), und der Wiederherstellungsschlüssel ist verwahrt.
+5. Der Nutzer erhält eine verständliche Rückmeldung über Erfolg oder Fehler jeder Sicherung.
+
+Eine lediglich erfolgreich erstellte Sicherungsdatei gilt **nicht** als ausreichender Nachweis. Nachweis ist nur eine erfolgreiche, geprüfte Wiederherstellung.
 
 ## 16. Synchronisation und Server
 
@@ -316,6 +400,14 @@ Der Betrieb soll mehrere Backups täglich, verschlüsselte externe Sicherungen u
 
 Bei einem Serverausfall muss die lokale Arbeit weiter möglich sein.
 
+**Betriebsverantwortung (verbindliche Freigabebedingung für die Serverphase):**
+
+- Es ist geklärt, wer für Serverbetrieb, Sicherheitsupdates, Überwachung, Backups und Störungsbehebung verantwortlich ist.
+- Diese Verantwortung liegt bei einer **fachkundigen Person** oder einem **beauftragten Dienstleister**.
+- Zugriffsrechte, Erreichbarkeit im Störungsfall (einschließlich Vertretung) und Wiederherstellungsverfahren sind dokumentiert.
+- Der laufende Betreuungsaufwand, der beim Projektverantwortlichen verbleibt, passt zusammen mit Test- und Abnahmeaufwand realistisch in **weniger als fünf Stunden pro Woche**.
+- **Ohne geklärte Betriebsverantwortung beginnt die Serverphase nicht.**
+
 ## 17. Datenschutz, Aufbewahrung und Unternehmensdaten
 
 Das Unternehmen verwaltet seine Projektdaten. Vollständige Projektexporte sind grundsätzlich Firmenadministratoren vorbehalten.
@@ -328,7 +420,14 @@ Löschanfragen werden vor der Ausführung hinsichtlich gesetzlicher Aufbewahrung
 
 Aufbewahrungsfristen sollen pro Dokument- und Datenart konfigurierbar sein. Vor dem Ablauf werden Verantwortliche gewarnt.
 
-**Testdaten:** Reale Pläne, Fotos und Vorlagen – auch anonymisierte – werden **nicht** in das Git-Repository übernommen. Sie werden nur auf den Testgeräten verwendet. Für automatisierte Tests werden künstlich erzeugte Testdaten genutzt. Ausnahme: eine vollständig anonymisierte Dokumentationsvorlage ohne Kunden-, Projekt- oder Personendaten darf nach ausdrücklicher Freigabe im Repository abgelegt werden.
+### 17.1 Vertrauliche Dateien und Testdaten (verbindlich)
+
+- Echte Pläne, Fotos und Dokumentationsvorlagen werden **niemals** in das Repository übernommen – **auch nicht in anonymisierter Form**. Es gibt hiervon keine Ausnahme.
+- Automatisierte Tests verwenden **ausschließlich künstlich erzeugte Daten**.
+- Echte Testunterlagen bleiben **lokal auf den freigegebenen Testgeräten** (Referenzgeräte gemäß Abschnitt 4.1).
+- Auch **Testprotokolle, Logs, Messprotokolle, Screenshots und GitHub-Actions-Artefakte** dürfen keine vertraulichen Projektinhalte enthalten. Dazu gehören auch Datei- und Projektnamen, Adressen, Kunden- und Personendaten sowie Plan- oder Fotoausschnitte. Messprotokolle enthalten nur technische Kennwerte, etwa Dateigröße, Seitenzahl, Seitenformat und Zeiten.
+- GitHub-Actions-Artefakte enthalten ausschließlich die erzeugten Testversionen und künstliche Testdaten.
+- Die Unternehmensvorlage wird im Repository nur als künstliche Nachbildung mit Fantasiedaten abgebildet (Abschnitt 14).
 
 ## 18. Externe Unternehmen
 
@@ -382,7 +481,7 @@ Die zeitlich begrenzte Offline-Lizenzierung bleibt bis zur kommerziellen Produkt
 
 Updates werden angeboten und zeitlich kontrolliert eingespielt. Sicherheitsupdates können innerhalb angemessener Fristen verpflichtend werden, müssen aber mit klaren Warnungen und einem sicheren Verfahren umgesetzt werden.
 
-Änderungen am lokalen Datenbankschema werden ausschließlich über getestete Migrationen eingespielt. Vor jeder Migration wird automatisch eine lokale Sicherung erstellt.
+Änderungen am lokalen Datenbankschema werden ausschließlich über getestete Migrationen eingespielt. Es gelten die verbindlichen Regeln zur Datensicherung vor Migrationen (Abschnitt 15.4).
 
 Technische Fehlerberichte sollen nur minimale anonyme Diagnosedaten enthalten. Projektinhalte, Fotos und Dokumente werden nicht automatisch übertragen.
 
@@ -399,7 +498,7 @@ Der erste nutzbare End-to-End-Ablauf umfasst:
 7. Lokales Backup erstellen und wiederherstellen
 8. Einfache Synchronisation zwischen Android und Windows mit sichtbarer Konflikterkennung
 
-Schritte 1–7 werden zunächst auf einem einzelnen Gerät erprobt (Meilenstein A), Schritt 8 schließt das MVP ab (Meilenstein B).
+Schritte 1–7 werden zunächst auf einem einzelnen Gerät erprobt (Meilenstein A), Schritt 8 schließt das MVP ab (Meilenstein B). Vor Meilenstein A müssen die Pflichtvoraussetzungen für den Pilotbetrieb mit Echtdaten (Abschnitt 15.5) erfüllt sein.
 
 Katalogverwaltung, umfassende Prüfabläufe, Mängelmanagement, Aufgaben, Rollen und Rechte, externer Zugriff und vollständige Konfliktauflösung folgen erst nach erfolgreicher Erprobung des MVP.
 
@@ -412,9 +511,12 @@ Katalogverwaltung, umfassende Prüfabläufe, Mängelmanagement, Aufgaben, Rollen
 | Verfahren zur Dateiverschlüsselung großer Dateien | Ende Phase 0 | offen |
 | Verhalten bei großen Plänen und umfangreichen Projekten | Ende Phase 0 | offen |
 | Speicherbedarf und Laufzeit umfangreicher PDF-Berichte | Ende Phase 0 | offen |
-| Referenzgeräte (Android-Modell, Windows-PC) für Messungen | Vor Phase 0 | offen |
-| Ticketnummern bei Gerätewechsel und Backup-Wiederherstellung | Grundsatz entschieden (9.1); Detailregel bis Ende Phase 0 | teilweise |
-| Wiederherstellungsverfahren bei Schlüsselverlust | Vor Backup-Phase | offen |
+| Referenzgeräte (Android-Modell, Windows-PC) für Messungen | Vor Phase 0 | erledigt (4.1) |
+| Ticketnummern bei Gerätewechsel und Backup-Wiederherstellung | Regeln verbindlich (9.1); Umgang mit „Nummer ausstehend" bis Ende Phase 0 | teilweise |
+| Wiederherstellungsverfahren bei Schlüsselverlust und Migrationssicherung | Ende Phase 0 (benötigt in Phase 1) | Regeln verbindlich (15.2, 15.4); Verfahren offen |
+| Dokumentation verlorene Geräte / verlorene Schlüssel | Vor Pilotbetrieb (Meilenstein A) | offen |
+| Ergänzender Test auf schwächerem Android-Gerät | Vor Praxistest, falls solche Geräte eingesetzt werden | offen |
+| Betriebsverantwortung für den Server (Person oder Dienstleister) | Vor Serverphase (Freigabebedingung) | offen |
 | Serverbetrieb, Standort, sichere Fernverbindung und Backupkonzept | Vor Serverphase | offen |
 | Konkrete Vorlagen, Pflichtfelder und technische Nachweise | Vor Berichtsphase | offen |
 | Datenschutz- und Aufbewahrungsregeln | Vor Praxistest mit Echtdaten | offen |
@@ -427,6 +529,8 @@ Keine Phase gilt allein deshalb als abgeschlossen, weil der Code kompiliert. Die
 
 Jede Phase wird vom Projektverantwortlichen einzeln und ausdrücklich abgenommen. Erst danach beginnt die nächste Phase.
 
+Vor der ausdrücklichen Freigabe des Phasenplans erfolgt keine Implementierung. Der Beginn von Phase 0 erfordert eine gesonderte, ausdrückliche Zustimmung.
+
 ## 25. Entscheidungsprotokoll
 
 | Nr. | Datum | Entscheidung |
@@ -436,6 +540,13 @@ Jede Phase wird vom Projektverantwortlichen einzeln und ausdrücklich abgenommen
 | E-03 | 22.10.2026 | Erster Funktionstest auf einem Einzelgerät; einfache Synchronisation Android ↔ Windows ist Bestandteil des MVP. Kein stilles Überschreiben, Konflikte werden sichtbar gemacht und beide Zustände bleiben erhalten. Vollständige Konfliktauflösung später. |
 | E-04 | 22.10.2026 | Verschlüsselung von Datenbank **und** Dateien (Fotos, Pläne, Anlagen). SHA-256-Prüfwert über die unverschlüsselte Originaldatei. |
 | E-05 | 22.10.2026 | UUID als maßgebliche technische Identität. Lesbare Ticketnummer `P2026-014 / K3-0042`; Gerätekürzel eindeutig und nie wiederverwendet; Zähler dauerhaft gespeichert; vergebene Nummern werden nie erneut vergeben. |
-| E-06 | 22.10.2026 | Technischer Machbarkeitstest (Phase 0) mit realen, ggf. anonymisierten Plänen und einer realen Dokumentationsvorlage. Leistungswerte sind Testziele, keine Zusagen. |
+| E-06 | 22.10.2026 | Technischer Machbarkeitstest (Phase 0) mit realen, ggf. anonymisierten Plänen und einer realen Dokumentationsvorlage – ausschließlich lokal auf den Testgeräten, nie im Repository (präzisiert durch E-09). Leistungswerte sind Testziele, keine Zusagen. |
 | E-07 | 22.10.2026 | Zeitlich begrenzte Offline-Lizenzierung bleibt bis zur kommerziellen Phase offen. |
 | E-08 | 22.10.2026 | Ein Katalog wird zunächst nur unternehmensintern geführt. |
+| E-09 | 22.10.2026 | Echte Pläne, Fotos und Vorlagen werden niemals ins Repository übernommen, auch nicht anonymisiert. Tests nutzen nur künstliche Daten. Protokolle, Logs, Screenshots und Actions-Artefakte enthalten keine vertraulichen Inhalte (17.1). |
+| E-10 | 22.10.2026 | Ticketnummern sind unveränderlich und werden nie erneut vergeben, auch bei Änderung der Projektnummer. Gerätekürzel allein garantiert keine globale Eindeutigkeit (Register und Eindeutigkeitsprüfung). Nach Wiederherstellung neues Kürzel. Bei unklarer Zählerhistorie Sperre der Vergabe (9.1). |
+| E-11 | 22.10.2026 | Geprüfte Sicherung vor jeder Datenbankmigration. Keine Migration ohne gültige Sicherung. Dokumentiertes Wiederherstellungsverfahren bei Fehlern. Kein Schlüssel darf nur auf einem Gerät liegen (15.2, 15.4). |
+| E-12 | 22.10.2026 | Pflichtvoraussetzungen vor dem Pilotbetrieb mit Echtdaten. Nachweis nur durch praktisch getestete Wiederherstellung (15.5). |
+| E-13 | 22.10.2026 | Die Serverphase beginnt erst nach geklärter Betriebsverantwortung durch eine fachkundige Person oder einen Dienstleister (16.3). |
+| E-14 | 22.10.2026 | Referenzgeräte: Xiaomi 15 Ultra (16 GB RAM, Android 16) und Windows 11 mit Intel Core i5-12400, 8 GB RAM (4.1). |
+| E-15 | 22.10.2026 | Keine Implementierung vor ausdrücklicher Freigabe des Phasenplans. Phase 0 beginnt nur nach gesonderter Zustimmung. |
